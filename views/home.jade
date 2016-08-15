@@ -1,0 +1,35 @@
+extends ./layout.jade
+	
+	
+// --------------- Header -------------- //
+block custom_header
+title Bien
+script(type='text/javascript').
+		$(document).ready(function(){
+			console.log("this is my home page");
+		});		
+// --------------- Navigation Bar  -------------- //
+block navpanel
+	include ./nav.jade
+	
+	
+// --------------- Main Stuff  -------------- //
+block content
+	#contentPanel
+		
+		#blockdate(title="date of last block") loading...
+			
+			
+		// --------------- Home Panel
+		include ./buyer.jade
+		
+		
+		// --------------- Create Panel
+		include ./business.jade
+		
+		
+		// --------------- Trade View
+		include ./courier.jade
+		
+block footer
+	include ./blockchain.jade

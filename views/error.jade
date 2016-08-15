@@ -1,6 +1,24 @@
-extends layout
-
+extends ./layout.jade
+	
+	
+// --------------- Header -------------- //
+block custom_header
+	script(type='text/javascript').
+		$(document).ready(function(){
+			console.log("it gets error");
+		});
+		
+		
+// --------------- Navigation Bar  -------------- //
+block navpanel
+	#logo Bien
+	
+	
+// --------------- Main Stuff  -------------- //
 block content
-  h1= message
-  h2= error.status
-  pre #{error.stack}
+	#contentPanel
+		h1 Error: #{message}
+		center
+			h2 #{message}
+			
+		hr
