@@ -115,8 +115,9 @@ table {
 
 tr {
   margin-bottom: 5px;
-  background: #39424D;
-  border-bottom: 6px #343D48 solid; }
+  background: #ffffff;
+  border-bottom: 1px #343D48 solid; 
+  }
 
 tr:hover {
   background: orange; }
@@ -271,7 +272,15 @@ label {
   background: #222832;
   position: relative;
   z-index: 4; }
-
+#logo:hover{
+	color: orange;
+	cursor: pointer;
+}
+.balance{
+	margin-left: 20px;
+    color: olivedrab;
+    font-size: smaller;
+}
 .marblesWrap {
   width: 42%;
   display: inline-block;

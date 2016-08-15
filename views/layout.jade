@@ -19,6 +19,7 @@ html
 		script(src='/javascripts/jquery-1.11.1.min.js')
 		script(src='/javascripts/jquery-ui-1.11.4/jquery-ui.min.js')
 		script(src='/javascripts/jquery.ui.touch-punch.min.js')
+		script(src='/javascripts/blockchain.js')
 		
 		script(type='text/javascript').
 			
@@ -30,12 +31,23 @@ html
 					var show = $(this).html().trim().toLowerCase();
 					showPanel(show);
 				});
+				$("#logo").click(function(){
+				console.log("i want to go back to home");
+					showHome();
+				});
+				function showHome(){
+					var part = window.location.pathname.substring(0,3);
+					window.history.pushState({},'', '/home');//put it in url so we can f5
+					$(".panel").hide();
+					$("#home").show();
+				}
 				function showPanel(show){
 					if(show == '') show = 'home';					//default
 					var part = window.location.pathname.substring(0,3);
 					window.history.pushState({},'', '/' + show);//put it in url so we can f5
 
 					$(".panel").hide();
+					$("#home").hide();
 					if($("#" + show + "Panel").length == 0){
 						$("#error404").fadeIn();
 					}
