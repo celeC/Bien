@@ -1,33 +1,45 @@
-- var orderList = [{"orderId":"1","name": "sqrtthree","state":"close","price":"$89"},{"orderId":"2","name": "sqrtthree","state":"new","price":"$29"},{"orderId":"3","name": "sqrtthree","state":"arrived","price":"$129"}];
+- var orderList = [{"orderId":"1","name": "Herschel Supply Co. Backpack","state":"new","price":"$89","owner":"business","postage":"$2"},{"orderId":"2","name": "Herschel Anchor Sleeve for 15 Laptop, Limoge Dots","state":"confirmed","price":"$29","owner":"buyer","postage":"$2"},{"orderId":"3","name": "Diesel Mr. Daddy 2.0 Black Dial Quartz Mens Watch DZ7332","state":"arrived","price":"$129","owner":"business","postage":"$2"},{"orderId":"4","name": "Herschel Anchor Sleeve for 15 Laptop, Limoge Dots","state":"distribute","price":"$29","owner":"business","postage":"$2"},{"orderId":"5","name": "Herschel Anchor Sleeve for 15 Laptop, Limoge Dots","state":"IN-Warehouse","price":"$39","owner":"business","postage":"$2"}];
+- var balance ={"buyer":200,"business":1000,"courier":1000};
+- var item
 #buyerPanel(hidden).panel
 	div
 		h1 Buyer 
-			span.balance $#{balance}
+			span.balance $#{balance.buyer}
 		hr
 		div
 			table
 						tbody
 							each item,i in orderList
-								tr(class=(i % 2 == 0)?'odd':'even')
-									td #{item.orderId}
-									td #{item.name}
-									td #{item.state}
-									td #{item.price}
-									td
-										button(type="button",class="button_"+item.orderId)
-											
-											case item.state
+								tr(class="order_"+item.orderId)
+									case item.state
 												when 'new'
-													span Buy
-												when 'close'
-													span VIEW
+													td #{item.orderId}
+													td #{item.name}
+													td #{item.state}
+													td #{item.price}
+													td
+														button(type="button",class="buy")
+															span BUY
+												when 'confirmed'
+													td #{item.orderId}
+													td #{item.name}
+													td #{item.state}
+													td #{item.price}
+													td
+														button(type="button",class="view")
+															span VIEW
 												when 'arrived'
-													span CONFIRM
-										
-		
+													td #{item.orderId}
+													td #{item.name}
+													td #{item.state}
+													td #{item.price}
+													td
+														button(type="button",class="confirm")
+															span CONFIRM
+									
 		#toolWrap
 			span.fa.fa-trash-o.fa-2x
-			p.hint DRAG HERE TO REMOVE
+
 			#trashbin.sortable
 
 

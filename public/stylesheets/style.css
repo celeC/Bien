@@ -103,13 +103,13 @@ legend {
 tr, td, th {
   border: 0;
   padding: 3px;
-  text-align: center; }
+   }
 
 table {
   border-spacing: 0;
   border: 0;
   border-collapse: collapse;
-  text-align: center;
+ 
   width: 100%;
   font-size: 15px; }
 
@@ -124,7 +124,7 @@ tr:hover {
 
 td {
   padding: 15px 10px;
-  vertical-align: middle; }
+   }
 
 th {
   padding: 10px 5px;
@@ -132,7 +132,7 @@ th {
   font-size: 12px;
   background: #343D48;
   color: #7E90A0;
-  text-align: center;
+  
   font-weight: bold; }
 
 thead tr {
@@ -168,7 +168,7 @@ input[type="submit"], input[type="button"], button {
 
 input:focus, select:focus, button:focus {
   outline: none !important;
-  border-color: #fff !important; }
+  border-color: #222832 !important; }
 
 input[type="submit"]:hover, input[type="button"]:hover, button:hover {
   background: #fff; }
@@ -176,10 +176,10 @@ input[type="submit"]:hover, input[type="button"]:hover, button:hover {
 input[type="text"], input[type="password"], select {
   padding: 3px 10px;
   margin: 5px;
-  color: #fff;
+  color: #222832;
   border: 1px solid #7E90A0;
-  border-radius: 30px;
-  background: #343D48;
+  border-radius: 5px;
+  background: #fff;
   min-width: 120px; }
 
 small {
@@ -278,7 +278,7 @@ label {
 }
 .balance{
 	margin-left: 20px;
-    color: olivedrab;
+    color: #6CC284;
     font-size: smaller;
 }
 .marblesWrap {
