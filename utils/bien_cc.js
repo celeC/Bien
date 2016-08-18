@@ -6,26 +6,29 @@ var chaincode = {};
 var async = require('async');
 
 module.exports.setup = function(sdk, cc){
+	console.log("init cc");
 	ibc = sdk;
 	chaincode = cc;
+	console.log("what is chaincode?"+chaincode.Invoke);
 };
 
 module.exports.process_msg = function(ws, data){
-	if(data.v === 2){																						//only look at messages for part 2
+																					//only look at messages for part 2
 		if(data.type == 'add'){
-			console.log('add new goods!');
-//			if(data.name && data.color && data.size && data.user){
-//				chaincode.invoke.init_marble([data.name, data.color, data.size, data.user], cb_invoked);	//create a new marble
-//			}
+			console.log(data);
+			if(data.name && data.owner && data.state && data.price && data.postage){
+				
+				chaincode.invoke.add_goods([data.name, data.owner, data.state, data.price,data.postage], cb_invoked);	//create a new marble
+			}
 		}
 		else if(data.type == 'view'){
 			console.log('get goods&order msg');
-			//chaincode.query.read(['_marbleindex'], cb_got_index);
+			chaincode.Query.read(['_orderindex'], cb_got_index);
 		}
 		else if(data.type == 'buy'){
 			console.log('buyer buy goods');
 //			if(data.name && data.user){
-//				chaincode.invoke.set_user([data.name, data.user]);
+				//chaincode.Invoke.set_user([data.name, data.owner]);
 //			}
 		}
 		else if(data.type == 'distribute'){
@@ -79,18 +82,18 @@ module.exports.process_msg = function(ws, data){
 			console.log('remove trade msg');
 			chaincode.invoke.remove_trade([data.id]);
 		}
-	}
+	
 	
 	
 	//got the marble index, lets get each marble
 	function cb_got_index(e, index){
-		if(e != null) console.log('[ws error] did not get marble index:', e);
+		if(e != null) console.log('[ws error] did not get bien index:', e);
 		else{
 			try{
 				var json = JSON.parse(index);
 				for(var i in json){
 					console.log('!', i, json[i]);
-					chaincode.query.read([json[i]], cb_got_marble);												//iter over each, read their values
+					//chaincode.query.read([json[i]], cb_got_marble);												//iter over each, read their values
 				}
 			}
 			catch(e){
@@ -111,6 +114,7 @@ module.exports.process_msg = function(ws, data){
 	}
 	
 	function cb_invoked(e, a){
+		console.log('hello response ');
 		console.log('response: ', e, a);
 	}
 	

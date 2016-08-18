@@ -187,9 +187,9 @@ var options = 	{
 								}
 					},
 					chaincode:{
-						zip_url: 'https://github.com/ibm-blockchain/marbles-chaincode/archive/master.zip',
-						unzip_dir: 'marbles-chaincode-master/hyperledger/part2',							//subdirectroy name of chaincode after unzipped
-						git_url: 'https://github.com/ibm-blockchain/marbles-chaincode/hyperledger/part2',	//GO get http url
+						zip_url: 'https://github.com/celeC/Bien-Chaincode/archive/master.zip',
+						unzip_dir: 'Bien-Chaincode-master/chaincode',							//subdirectroy name of chaincode after unzipped
+						git_url: 'https://github.com/celeC/Bien-Chaincode/chaincode',	//GO get http url
 					
 					}
 				};
@@ -202,13 +202,12 @@ ibc.load(options, function (err, cc){														//parse/load chaincode, respo
 		if(!process.error) process.error = {type: 'load', msg: err.details};				//if it already exist, keep the last error
 	}
 	else{
-		chaincode = cc;
-															
+		chaincode = cc;									
 		bien.setup(ibc, cc);																//pass the cc obj to bien node code
 
 		// ---- To Deploy or Not to Deploy ---- //
 		if(!cc.details.deployed_name || cc.details.deployed_name === ''){					//yes, go deploy
-			cc.deploy('init', ['99'], {save_path: './cc_summaries',delay_ms: 50000},users[0].enrollId, function(e){ //delay_ms is milliseconds to wait after deploy for conatiner to start, 50sec recommended
+			cc.deploy('init', ['99'], {save_path: './cc_summaries',delay_ms: 5000},users[0].enrollId, function(e){ //delay_ms is milliseconds to wait after deploy for conatiner to start, 50sec recommended
 				check_if_deployed(e, 1);
 			});
 		}
@@ -232,31 +231,34 @@ function check_if_deployed(e, attempt){
 	}
 	else{
 		console.log('[preflight check]', attempt, ': testing if chaincode is ready');
-//		chaincode.query.read(['_marbleindex'], function(err, resp){
-//			var cc_deployed = false;
-//			try{
-//				if(err == null){															//no errors is good, but can't trust that alone
-//					if(resp === 'null') cc_deployed = true;									//looks alright, brand new, no marbles yet
-//					else{
-//						var json = JSON.parse(resp);
-//						if(json.constructor === Array) cc_deployed = true;					//looks alright, we have marbles
-//					}
-//				}
-//			}
-//			catch(e){}																		//anything nasty goes here
-//
-//			// ---- Are We Ready? ---- //
-//			if(!cc_deployed){
-//				console.log('[preflight check]', attempt, ': failed, trying again');
-//				setTimeout(function(){
-//					check_if_deployed(null, ++attempt);										//no, try again later
-//				}, 10000);
-//			}
-//			else{
-//				console.log('[preflight check]', attempt, ': success');
+		chaincode.query.read(['_orderindex'], users[0].enrollId,function(err, resp){
+			var cc_deployed = false;
+			try{
+				if(err == null){															//no errors is good, but can't trust that alone
+					if(resp === 'null') cc_deployed = true;									//looks alright, brand new, no marbles yet
+					else{
+						var json = JSON.parse(resp);
+						console.log(json);
+						if(json.constructor === Array) cc_deployed = true;					//looks alright, we have marbles
+					}
+				}
+			}
+			catch(e){
+				
+			}																		//anything nasty goes here
+
+			// ---- Are We Ready? ---- //
+			if(!cc_deployed){
+				console.log('[preflight check]', attempt, ': failed, trying again');
+				setTimeout(function(){
+					check_if_deployed(null, ++attempt);										//no, try again later
+				}, 10000);
+			}
+			else{
+				console.log('[preflight check]', attempt, ': success');
 				cb_deployed(null);															//yes, lets go!
-//			}
-//		});
+			}
+		});
 	}
 }
 

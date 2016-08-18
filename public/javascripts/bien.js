@@ -17,7 +17,7 @@ $(document).on('ready', function() {
 				postage: $('input[name="postage"]').val()
 			};
 
-	console.log('add new goods, sending', obj);
+	console.log('add new goods,', obj);
 	ws.send(JSON.stringify(obj));
 
 	});
@@ -28,50 +28,45 @@ $(document).on('ready', function() {
 						order_id:'1'
 					};
 		console.log("hello");
-		
+		ws.send(JSON.stringify(obj));
 	});
 	
-	
-	$(document).on('click', '.confirmTrade', function(){
-		console.log('trading...');
-		var i = $(this).attr('trade_pos');
-		var x = $(this).attr('willing_pos');
-		var msg = 	{
-						type: 'perform_trade',
-						v: 2,
-						id: bag.trades[i].timestamp.toString(),
-						opener:{											//marble he is giving up
-							user: bag.trades[i].user,
-							color: bag.trades[i].willing[x].color,
-							size: bag.trades[i].willing[x].size.toString(),
-						},
-						closer:{											//marble hs ig giving up
-							user: user.username,							//guy who is logged in
-							name: $(this).attr('name'),
-							color: '',										//dsh to do, add these and remove above
-							size: ''
-						}
+	$('.view').click(function(){
+		var obj = 	{
+						type: 'view',
+						order_id:'1'
 					};
-		ws.send(JSON.stringify(msg));
-		$('#notificationPanel').animate({width:'toggle'});
+		console.log("hello");
+		ws.send(JSON.stringify(obj));
 	});
 	
-	$(document).on('click', '.willingWrap .colorOption', function(){
-		set_my_size_options(user.username, this);
+	$('.distribute').click(function(){
+		var obj = 	{
+						type: 'distribute',
+						order_id:'1'
+					};
+		console.log("distribute");
+		ws.send(JSON.stringify(obj));
 	});
+	$('.confirm').click(function(){
+		var obj = 	{
+						type: 'confirm',
+						order_id:'1'
+					};
+		console.log("confirm");
+		ws.send(JSON.stringify(obj));
+	});
+	$('.signOff').click(function(){
+		var obj = 	{
+						type: 'signOff',
+						order_id:'1'
+					};
+		console.log("signOff");
+		ws.send(JSON.stringify(obj));
+	});
+	
+	
 
-	
-	$(document).on('click', '.removeTrade', function(){
-		var trade = find_trade($(this).attr('trade_timestamp'));
-		$(this).parent().parent().addClass('invalid');
-		console.log('trade', trade);
-		var msg = 	{
-						type: 'remove_trade',
-						v: 2,
-						id: trade.timestamp.toString(),
-					};
-		ws.send(JSON.stringify(msg));
-	});
 });
 
 //=================================================================================
