@@ -13,47 +13,51 @@ module.exports.setup = function(sdk, cc){
 };
 
 module.exports.process_msg = function(ws, data){
-																					//only look at messages for part 2
+	if(data.v === 1){																					//only look at messages for part 2
 		if(data.type == 'add'){
-			console.log(data);
-			if(data.name && data.owner && data.state && data.price && data.postage){
-				
+			//console.log(data);
+			if(data.name && data.owner && data.state && data.price && data.postage){			
 				chaincode.invoke.add_goods([data.name, data.owner, data.state, data.price,data.postage], cb_invoked);	//create a new marble
 			}
 		}
 		else if(data.type == 'view'){
 			console.log('get goods&order msg');
-			chaincode.Query.read(['_orderindex'], cb_got_index);
+			chaincode.query.read(['_orderindex'], cb_got_index);
 		}
 		else if(data.type == 'buy'){
-			console.log('buyer buy goods');
-//			if(data.name && data.user){
-				//chaincode.Invoke.set_user([data.name, data.owner]);
-//			}
+		
+			if(data.state&&data.id){
+				
+				chaincode.invoke.change_state([data.id,data.state]);
+				chaincode.query.read([data.id],cb_got_bien);
+				
+			}
 		}
 		else if(data.type == 'distribute'){
 			console.log('distribute  goods');
-//			if(data.name){
-//				chaincode.invoke.delete([data.name]);
-//			}
+		if(data.state){
+			chaincode.invoke.change_state([data.id,data.state]);
+		}
 		}
 		else if(data.type == 'confirm'){
 			console.log('confirm  goods');
-//			if(data.name){
-//				chaincode.invoke.delete([data.name]);
-//			}
+			if(data.state){
+				chaincode.invoke.set_owner([data.id,data.owner]);
+			}
 		}
 		else if(data.type == 'signOff'){
 			console.log('signOff  goods');
-//			if(data.name){
-//				chaincode.invoke.delete([data.name]);
-//			}
+			if(data.state){
+				chaincode.invoke.change_state([data.id,data.state]);
+			}
 		}
 		else if(data.type == 'chainstats'){
 			console.log('chainstats msg');
-			//ibc.chain_stats(cb_chainstats);
+			ibc.chain_stats(cb_chainstats);
+			chaincode.query.read(['_orderindex'], cb_got_index);
 		}
-		else if(data.type == 'open_trade'){
+	}
+		if(data.type == 'open_trade'){
 			console.log('open_trade msg');
 			if(!data.willing || data.willing.length < 0){
 				console.log('error, "willing" is empty');
@@ -85,15 +89,20 @@ module.exports.process_msg = function(ws, data){
 	
 	
 	
-	//got the marble index, lets get each marble
+	//got the bien index, lets get each marble
 	function cb_got_index(e, index){
+		console.log("[jacey] cb_got_index")
+		console.log(JSON.parse(index))
 		if(e != null) console.log('[ws error] did not get bien index:', e);
 		else{
 			try{
 				var json = JSON.parse(index);
 				for(var i in json){
 					console.log('!', i, json[i]);
-					//chaincode.query.read([json[i]], cb_got_marble);												//iter over each, read their values
+					chaincode.query.read([json[i]], cb_got_bien);	
+					//iter over each, read their values
+					console.log("=======================");
+					console.log(json[i]);
 				}
 			}
 			catch(e){
@@ -102,12 +111,15 @@ module.exports.process_msg = function(ws, data){
 		}
 	}
 	
-	//call back for getting a marble, lets send a message
-	function cb_got_marble(e, marble){
-		if(e != null) console.log('[ws error] did not get marble:', e);
+	//call back for getting a bien, lets send a message
+	function cb_got_bien(e, bien){
+		console.log("[jacey] bien:");
+		console.log(bien);
+		console.log(JSON.parse(bien));
+		if(e != null) console.log('[ws error] did not get bien:', e);
 		else {
 			try{
-				sendMsg({msg: 'marbles', marble: JSON.parse(marble)});
+				sendMsg({msg: 'bien', bien: JSON.parse(bien)});
 			}
 			catch(e){}
 		}
@@ -139,6 +151,28 @@ module.exports.process_msg = function(ws, data){
 			}, function() {
 			});
 		}
+	}
+	
+	//got the update bien
+	function cb_update_state(e, result){
+		console.log("[jacey] cb_update_state")
+		console.log(result)
+//		if(e != null) console.log('[ws error] did not get bien index:', e);
+//		else{
+//			try{
+//				var json = JSON.parse(index);
+//				for(var i in json){
+//					console.log('!', i, json[i]);
+//					chaincode.query.read([json[i]], cb_got_bien);	
+//					//iter over each, read their values
+//					console.log("=======================");
+//					console.log(json[i]);
+//				}
+//			}
+//			catch(e){
+//				console.log('[ws error] could not parse response', e);
+//			}
+//		}
 	}
 	
 	//call back for getting open trades, lets send the trades

@@ -311,7 +311,7 @@ function cb_deployed(e){
 				console.log('hey new block, lets refresh and broadcast to all', chain_stats.height-1);
 				ibc.block_stats(chain_stats.height - 1, cb_blockstats);
 				wss.broadcast({msg: 'reset'});
-//				chaincode.query.read(['_marbleindex'], cb_got_index);
+				chaincode.query.read(['_orderindex'], cb_got_index);
 //				chaincode.query.read(['_opentrades'], cb_got_trades);
 			}
 			
@@ -327,7 +327,7 @@ function cb_deployed(e){
 			
 			//got the goods index, lets get each goods block
 			function cb_got_index(e, index){
-				if(e != null) console.log('marble index error:', e);
+				if(e != null) console.log('bien index error:', e);
 				else{
 					try{
 						var json = JSON.parse(index);
@@ -343,14 +343,16 @@ function cb_deployed(e){
 			}
 			
 			//call back for getting a order, lets send a message
-			function cb_got_order(e, order){
+			function cb_got_order(e, bien){
+				console.log(JSON.parse(bien));
 				if(e != null) console.log('order error:', e);
+				
 				else {
 					try{
-						wss.broadcast({msg: 'order', order: JSON.parse(order)});
+						wss.broadcast({msg: 'bien', bien: JSON.parse(bien)});
 					}
 					catch(e){
-						console.log('order msg error', e);
+						console.log('bien msg error', e);
 					}
 				}
 			}

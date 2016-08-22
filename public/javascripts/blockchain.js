@@ -31,7 +31,7 @@ function show_details(event, id){								//build the block details html
 
 	var html = '<p class="blckLegend"> Block Height: ' + blocks[id].id + '</p>';
 	html += '<hr class="line"/><p>Created: &nbsp;' + formatDate(blocks[id].blockstats.transactions[0].timestamp.seconds * 1000, '%M-%d-%Y %I:%m%p') + ' UTC</p>';
-	html += '<p> UUID: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + formatUUID(blocks[id].blockstats.transactions[0].type, blocks[id].blockstats.transactions[0].uuid) + '</p>';
+	html += '<p> txid: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + formatUUID(blocks[id].blockstats.transactions[0].type, blocks[id].blockstats.transactions[0].txid) + '</p>';
 	html += '<p> Type:  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + formatType(blocks[id].blockstats.transactions[0].type) + '</p>';
 	html += '<p> CC ID:  &nbsp;&nbsp;&nbsp;&nbsp;' + ccid + '</p>';
 	html += '<p> Payload:  &nbsp;' + formatPayload(payload, ccid) + '</p>';
@@ -39,11 +39,12 @@ function show_details(event, id){								//build the block details html
 }
 
 function new_block(newblck){									//rec a new block
+	console.log("[jacey] hi new block");
 	if(!blocks[Number(newblck.id)]){
 		for(var last in blocks);								//find the id of the last known block
 		if(!last) last = 0;
 		last++;
-		//console.log('last', last, Number(newblck.id));
+		console.log('last', last, Number(newblck.id));
 		if(block > 0){											//never fake blocks on an initial load
 			for(var i=last; i < Number(newblck.id); i++){		//build fake blocks for ones we missed out on
 				console.log('run?');
@@ -66,7 +67,7 @@ function build_block(id){										//build and append the block html
 }
 
 function move_on_down(){										//move the blocks left
-	if(block > 10){
+	if(block > 20){
 		$('.block:first').animate({opacity: 0}, 800, function(){$('.block:first').remove();});
 		$('.block').animate({left: '-=36'}, 800, function(){});
 		block--;
@@ -96,8 +97,9 @@ function formatType(i){											//spell out deploy or invoke
 	return i;
 }
 
-function formatPayload(str, ccid){								//create a sllliiiggghhhtttlllllyyy better payload name from decoded payload
-	var func = ['init', 'delete', 'write', 'init_marble', 'set_user', 'open_trade', 'perform_trade', 'remove_trade'];
+function formatPayload(str, ccid){								
+	var func = ['init', 'read', 'write', 'add_goods', 'set_owner', 'open_trade', 'perform_trade', 'change_state'];
+	
 	str =  str.substring(str.indexOf(ccid) + ccid.length + 4);
 	for(var i in func){
 		if(str.indexOf(func[i]) >= 0){

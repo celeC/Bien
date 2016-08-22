@@ -11,27 +11,15 @@
 		div
 			table
 						tbody
-							each item,i in orderList
-								tr
-									case item.state
-												when 'IN-Warehouse'
-													td #{item.orderId}
-													td #{item.name}
-													td #{item.state}
-													td #{item.price}
-													td
-														button(type="button",class="distribute")
-															span DISTRIBUTE
-												when 'distribute'
-													td #{item.orderId}
-													td #{item.name}
-													td #{item.state}
-													td #{item.price}
-													td
-														button(type="button",class="view")
-															span VIEW
+							tr
+								td Name
+								td State
+								td Price($)
+								td Postage($)
+								td
+							tbody#goodsShow_store
+									
 												
 		#toolWrap
 			span.fa.fa-trash-o.fa-2x
-			p.hint DRAG HERE TO REMOVE
 			#trashbin.sortable

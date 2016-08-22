@@ -8,35 +8,14 @@
 		hr
 		div
 			table
-						tbody
-							each item,i in orderList
-								tr(class="order_"+item.orderId)
-									case item.state
-												when 'new'
-													td #{item.orderId}
-													td #{item.name}
-													td #{item.state}
-													td #{item.price}
-													td
-														button(type="button",class="buy")
-															span BUY
-												when 'confirmed'
-													td #{item.orderId}
-													td #{item.name}
-													td #{item.state}
-													td #{item.price}
-													td
-														button(type="button",class="view")
-															span VIEW
-												when 'arrived'
-													td #{item.orderId}
-													td #{item.name}
-													td #{item.state}
-													td #{item.price}
-													td
-														button(type="button",class="confirm")
-															span CONFIRM
-									
+						
+							tr
+								td Name
+								td State
+								td Price($)
+								td Postage($)
+								td
+							tbody#goodsShow
 		#toolWrap
 			span.fa.fa-trash-o.fa-2x
 
