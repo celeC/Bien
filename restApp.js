@@ -175,28 +175,6 @@ catch(e){
 }
 
 
-//=================================deploy chaincode does not through ibm-blockchain-js sdk===================
-//
-//options = {path: '/chaincode'};
-//
-//body = 	{
-//			jsonrpc: '2.0',
-//			method: 'deploy',
-//			params: {
-//				type: 1,
-//				chaincodeID:{
-//					path: ibc.chaincode.details.git_url
-//				},
-//				ctorMsg: {
-//					function: func,
-//					args: args
-//				},
-//				secureContext: enrollId
-//			},
-//			id: Date.now()
-//		};
-//
-//rest.post(options, '', body);
 //==================================
 //configure options for ibm-blockchain-js sdk
 //==================================
@@ -213,12 +191,12 @@ var options = 	{
 					chaincode:{
 						zip_url: 'https://github.com/celeC/Bien-Chaincode/archive/master.zip',
 						unzip_dir: 'Bien-Chaincode-master/chaincode',							//subdirectroy name of chaincode after unzipped
-						git_url: 'https://github.com/celeC/Bien-Chaincode/chaincode',		//GO get http url
+						git_url: 'https://github.com/celeC/Bien-Chaincode/chaincode',	//GO get http url
 					
 					}
 				};
 
-//---- Fire off SDK ---- //
+//---- Fire off SDK ---- 虽然在chaincode 中指定了URL，sdk 会首先download zip 在UI项目中存储一份，也会在UI 调用deploy的时候获取URL做deploy，用户可以不用调用deploy，但是load 还是会去判断URL是否有设置。主要获取peer信息//
 var chaincode = null;																		//sdk will populate this var in time, lets give it high scope by creating it here
 ibc.load(options, function (err, cc){														//parse/load chaincode, response has chaincode functions!
 	if(err != null){
@@ -228,29 +206,15 @@ ibc.load(options, function (err, cc){														//parse/load chaincode, respo
 	else{
 		chaincode = cc;									
 		bien.setup(ibc, cc);																//pass the cc obj to bien node code
-
-		console.log(cc.details.deployed_name);
-		//cc.details.deployed_name = "1e10ef2c8f2ca28059404954fda575afd8b1f1fe300e8e7fc44364cca13c0140a5429fec09fe538055293945cd04175a2602e69db8ef4b39c061b034b854b8e4";
-		// ---- To Deploy or Not to Deploy ---- //
-		if(!cc.details.deployed_name || cc.details.deployed_name === ''){					//yes, go deploy
-			cc.deploy('init', ['99'], {save_path: './cc_summaries',delay_ms: 5000},users[0].enrollId, function(e){ //delay_ms is milliseconds to wait after deploy for conatiner to start, 50sec recommended
-				check_if_deployed(e, 1);
-			});
-		}
-		else{																				//no, already deployed
-			console.log('chaincode summary file indicates chaincode has been previously deployed');
-			check_if_deployed(null, 1);
-		}
+    	//get chain code deployed_name, does not do the deployment
+		cc.details.deployed_name = "20059a090ba45657f6479ab5210cff3022d86ee5f6432161a4e1ffa04f285b3f9674dbd2349d238d9846a91d81aabc78179702fffdacc3e148748d4104fdd8ec";		
 	}
-	check_if_deployed(null, 1);
+	check_chaincode_if_running(1);
 });
 
-//loop here, check if chaincode is up and running or not
-function check_if_deployed(e, attempt){
-	if(e){
-		cb_deployed(e);																		//looks like an error pass it along
-	}
-	else if(attempt >= 15){																	//tried many times, lets give up and pass an err msg
+//loop here, check if chaincode is up and running or not （>15 will not do check anymore）
+function check_chaincode_if_running(attempt){
+	if(attempt >= 15){																	//tried many times, lets give up and pass an err msg
 		console.log('[preflight check]', attempt, ': failed too many times, giving up');
 		var msg = 'chaincode is taking an unusually long time to start. this sounds like a network error, check peer logs';
 		if(!process.error) process.error = {type: 'deploy', msg: msg};
@@ -278,11 +242,11 @@ function check_if_deployed(e, attempt){
 			if(!cc_deployed){
 				console.log('[preflight check]', attempt, ': failed, trying again');
 				setTimeout(function(){
-					check_if_deployed(null, ++attempt);										//no, try again later
+					check_chaincode_if_running(++attempt);										//no, try again later
 				}, 10000);
 			}
 			else{
-				console.log('[preflight check]', attempt, ': success');
+				console.log('[preflight check]', attempt, ': chaincode ready, run success');
 				cb_deployed(null);															//yes, lets go!
 			}
 		});
@@ -294,7 +258,7 @@ function check_if_deployed(e, attempt){
 // ============================================================================================================================
 function cb_deployed(e){
 	if(e != null){
-		//look at tutorial_part1.md in the trouble shooting section for help
+		
 		console.log('! looks like a deploy error, holding off on the starting the socket\n', e);
 		if(!process.error) process.error = {type: 'deploy', msg: e.details};
 	}
@@ -364,7 +328,7 @@ function cb_deployed(e){
 						}
 					}
 					catch(e){
-						console.log('marbles index msg error:', e);
+						console.log('bien index msg error:', e);
 					}
 				}
 			}
@@ -385,22 +349,21 @@ function cb_deployed(e){
 			}
 			
 			//call back for getting open trades, lets send the trades
-			function cb_got_trades(e, trades){
-				if(e != null) console.log('trade error:', e);
-				else {
-					try{
-						trades = JSON.parse(trades);
-						if(trades && trades.open_trades){
-							wss.broadcast({msg: 'open_trades', open_trades: trades.open_trades});
-						}
-					}
-					catch(e){
-						console.log('trade msg error', e);
-					}
-				}
-			}
+//			function cb_got_trades(e, trades){
+//				if(e != null) console.log('trade error:', e);
+//				else {
+//					try{
+//						trades = JSON.parse(trades);
+//						if(trades && trades.open_trades){
+//							wss.broadcast({msg: 'open_trades', open_trades: trades.open_trades});
+//						}
+//					}
+//					catch(e){
+//						console.log('trade msg error', e);
+//					}
+//				}
+//			}
 		});
 	}
 }
 
-//module.exports = app;
