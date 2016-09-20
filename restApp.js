@@ -207,7 +207,7 @@ ibc.load(options, function (err, cc){														//parse/load chaincode, respo
 		chaincode = cc;									
 		bien.setup(ibc, cc);																//pass the cc obj to bien node code
     	//get chain code deployed_name, does not do the deployment
-		cc.details.deployed_name = "20059a090ba45657f6479ab5210cff3022d86ee5f6432161a4e1ffa04f285b3f9674dbd2349d238d9846a91d81aabc78179702fffdacc3e148748d4104fdd8ec";		
+		cc.details.deployed_name = "6c000d32e55b69392648f95da5709345e6336c52588551d553c9aa0ee682b02c68ff54b361cc41f517d8572b0aef5c8b2decb57077b1818a0056fc5f17c21fda";		
 	}
 	check_chaincode_if_running(1);
 });
@@ -303,7 +303,6 @@ function cb_deployed(e){
 				ibc.block_stats(chain_stats.height - 1, cb_blockstats);
 				wss.broadcast({msg: 'reset'});
 				chaincode.query.read(['_orderindex'], cb_got_index);
-//				chaincode.query.read(['_opentrades'], cb_got_trades);
 			}
 			
 			//got the block's stats, lets send the statistics
@@ -335,7 +334,7 @@ function cb_deployed(e){
 			
 			//call back for getting a order, lets send a message
 			function cb_got_order(e, bien){
-				console.log(JSON.parse(bien));
+				console.log(bien);
 				if(e != null) console.log('order error:', e);
 				
 				else {
@@ -347,23 +346,19 @@ function cb_deployed(e){
 					}
 				}
 			}
+
 			
-			//call back for getting open trades, lets send the trades
-//			function cb_got_trades(e, trades){
-//				if(e != null) console.log('trade error:', e);
-//				else {
-//					try{
-//						trades = JSON.parse(trades);
-//						if(trades && trades.open_trades){
-//							wss.broadcast({msg: 'open_trades', open_trades: trades.open_trades});
-//						}
-//					}
-//					catch(e){
-//						console.log('trade msg error', e);
-//					}
-//				}
-//			}
 		});
+	}
+	function sendMsg(json){
+		if(ws){
+			try{
+				ws.send(JSON.stringify(json));
+			}
+			catch(e){
+				console.log('[ws error] could not send msg', e);
+			}
+		}
 	}
 }
 

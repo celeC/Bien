@@ -87,6 +87,8 @@ var server = http.createServer(app);
  */
 
 server.listen(port);
+server.timeout = 240000;																							// Ta-da.
+console.log('------------------------------------------ Server Up ------------------------------------------');
 server.on('error', onError);
 server.on('listening', onListening);
 
@@ -212,8 +214,8 @@ var options = 	{
 					},
 					chaincode:{
 						zip_url: 'https://github.com/celeC/Bien-Chaincode/archive/master.zip',
-						unzip_dir: 'Bien-Chaincode-master/chaincode',							//subdirectroy name of chaincode after unzipped
-						git_url: 'https://github.com/celeC/Bien-Chaincode/chaincode',		//GO get http url
+						unzip_dir: 'Bien-Chaincode-master/chaincode-back',							//subdirectroy name of chaincode after unzipped
+						git_url: 'https://github.com/celeC/Bien-Chaincode/chaincode-back',		//GO get http url
 					
 					}
 				};
@@ -334,12 +336,13 @@ function cb_deployed(e){
 		// Monitor the height of the blockchain
 		// ========================================================
 		ibc.monitor_blockheight(function(chain_stats){										//there is a new block, lets refresh everything that has a state
+			
+			console.log("[jacey] blockheight");
 			if(chain_stats && chain_stats.height){
 				console.log('hey new block, lets refresh and broadcast to all', chain_stats.height-1);
 				ibc.block_stats(chain_stats.height - 1, cb_blockstats);
 				wss.broadcast({msg: 'reset'});
 				chaincode.query.read(['_orderindex'], cb_got_index);
-//				chaincode.query.read(['_opentrades'], cb_got_trades);
 			}
 			
 			//got the block's stats, lets send the statistics

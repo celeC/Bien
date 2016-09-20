@@ -6,16 +6,15 @@ var chaincode = {};
 var async = require('async');
 
 module.exports.setup = function(sdk, cc){
-	console.log("init cc");
+
 	ibc = sdk;
 	chaincode = cc;
-	console.log("what is chaincode?"+chaincode.Invoke);
+	
 };
 
 module.exports.process_msg = function(ws, data){
 	if(data.v === 1){																					//only look at messages for part 2
 		if(data.type == 'add'){
-			//console.log(data);
 			if(data.name && data.owner && data.state && data.price && data.postage){			
 				chaincode.invoke.add_goods([data.name, data.owner, data.state, data.price,data.postage], cb_invoked);	//create a new marble
 			}
@@ -24,69 +23,31 @@ module.exports.process_msg = function(ws, data){
 			console.log('get goods&order msg');
 			chaincode.query.read(['_orderindex'], cb_got_index);
 		}
-		else if(data.type == 'buy'){
-		
+		else if(data.type == 'buy'||data.type == 'outbound'||data.type == 'distribute'||data.type == 'signOff'){
+		console.log("[jacey]"+data);
 			if(data.state&&data.id){
 				
 				chaincode.invoke.change_state([data.id,data.state]);
-				chaincode.query.read([data.id],cb_got_bien);
-				
+			
 			}
 		}
-		else if(data.type == 'distribute'){
-			console.log('distribute  goods');
-		if(data.state){
-			chaincode.invoke.change_state([data.id,data.state]);
-		}
-		}
+	
 		else if(data.type == 'confirm'){
 			console.log('confirm  goods');
-			if(data.state){
+			if(data.state&&data.id&&data.owner){
 				chaincode.invoke.set_owner([data.id,data.owner]);
-			}
-		}
-		else if(data.type == 'signOff'){
-			console.log('signOff  goods');
-			if(data.state){
 				chaincode.invoke.change_state([data.id,data.state]);
 			}
 		}
+	
 		else if(data.type == 'chainstats'){
-			console.log('chainstats msg');
-			ibc.chain_stats(cb_chainstats);
+			console.log('recived chainstats msg');
+			//ibc.chain_stats(cb_chainstats);
 			chaincode.query.read(['_orderindex'], cb_got_index);
 		}
 	}
-		if(data.type == 'open_trade'){
-			console.log('open_trade msg');
-			if(!data.willing || data.willing.length < 0){
-				console.log('error, "willing" is empty');
-			}
-			else if(!data.want){
-				console.log('error, "want" is empty');
-			}
-			else{
-				var args = [data.user, data.want.color, data.want.size];
-				for(var i in data.willing){
-					args.push(data.willing[i].color);
-					args.push(data.willing[i].size);
-				}
-				chaincode.invoke.open_trade(args);
-			}
-		}
-		else if(data.type == 'get_open_trades'){
-			console.log('get open trades msg');
-			chaincode.query.read(['_opentrades'], cb_got_trades);
-		}
-		else if(data.type == 'perform_trade'){
-			console.log('perform trade msg');
-			chaincode.invoke.perform_trade([data.id, data.closer.user, data.closer.name, data.opener.user, data.opener.color, data.opener.size]);
-		}
-		else if(data.type == 'remove_trade'){
-			console.log('remove trade msg');
-			chaincode.invoke.remove_trade([data.id]);
-		}
-	
+		
+
 	
 	
 	//got the bien index, lets get each marble
@@ -114,14 +75,16 @@ module.exports.process_msg = function(ws, data){
 	//call back for getting a bien, lets send a message
 	function cb_got_bien(e, bien){
 		console.log("[jacey] bien:");
-		console.log(bien);
 		console.log(JSON.parse(bien));
 		if(e != null) console.log('[ws error] did not get bien:', e);
 		else {
 			try{
 				sendMsg({msg: 'bien', bien: JSON.parse(bien)});
+				
 			}
-			catch(e){}
+			catch(e){
+				console.log('jacey:', e);
+			}
 		}
 	}
 	
@@ -153,47 +116,13 @@ module.exports.process_msg = function(ws, data){
 		}
 	}
 	
-	//got the update bien
-	function cb_update_state(e, result){
-		console.log("[jacey] cb_update_state")
-		console.log(result)
-//		if(e != null) console.log('[ws error] did not get bien index:', e);
-//		else{
-//			try{
-//				var json = JSON.parse(index);
-//				for(var i in json){
-//					console.log('!', i, json[i]);
-//					chaincode.query.read([json[i]], cb_got_bien);	
-//					//iter over each, read their values
-//					console.log("=======================");
-//					console.log(json[i]);
-//				}
-//			}
-//			catch(e){
-//				console.log('[ws error] could not parse response', e);
-//			}
-//		}
-	}
-	
-	//call back for getting open trades, lets send the trades
-	function cb_got_trades(e, trades){
-		if(e != null) console.log('[ws error] did not get open trades:', e);
-		else {
-			try{
-				trades = JSON.parse(trades);
-				if(trades && trades.open_trades){
-					sendMsg({msg: 'open_trades', open_trades: trades.open_trades});
-				}
-			}
-			catch(e){}
-		}
-	}
 
 	//send a message, socket might be closed...
 	function sendMsg(json){
+		console.log("[jacey sendMsg]"+json.msg);
 		if(ws){
 			try{
-				ws.send(JSON.stringify(json));
+				ws.send(JSON.stringify(json));		
 			}
 			catch(e){
 				console.log('[ws error] could not send msg', e);
